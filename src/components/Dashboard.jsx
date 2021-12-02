@@ -4,9 +4,12 @@ import {
   ApolloProvider,
   InMemoryCache,
 } from '@apollo/client';
+import { ToastContainer } from 'react-toastify';
 import SelectMetric from './SelectMetric';
 import { withStyles } from '@material-ui/core/styles';
 import GetChart from './Chart';
+import Header from './Header';
+
 // import LiveData from './LiveData';
 
 const client = new ApolloClient({
@@ -43,6 +46,8 @@ class Dashboard extends React.Component {
     const { classes } = this.props;
     return (
       <ApolloProvider client={client}>
+        <Header />
+        <ToastContainer />
         <div className = {classes.selectMetricContainer} >
           <SelectMetric
             onChange = {this.onMetricChange}/>

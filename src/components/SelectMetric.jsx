@@ -1,8 +1,12 @@
-import * as React from 'react';
+import React, { useEffect, useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
+import {
+  useQuery,
+  gql,
+} from '@apollo/client';
 
 const useStyles = makeStyles({
   wrapper: {
@@ -17,27 +21,42 @@ const useStyles = makeStyles({
   }
 });
 
-const metricsList = [
-    { label: 'WaterTemp', value: 'waterTemp' },
-    { label: 'flareTemp', value: 'flareTemp' },
-    { label: 'injValveOpen', value: 'injValveOpen' },
-    { label: 'tubingPressure', value: 'tubingPressure' },
-    { label: 'casingPressure', value: 'casingPressure' },
-    { label: 'oilTemp', value: 'oilTemp' }
-]
 
-type Props = { 
-    onChange: (event: React.SyntheticEvent<Element, Event>, value: { label: string; value: string; }[]) => void
-  };
 
-const SelectMetric = (props: Props) => {
+const query = gql`
+     {
+        getMetrics,
+      __typename
+    }
+`;
+
+
+const SelectMetric = (props) => {
+  const [metricList, setMetricList] = useState([]);
   const classes = useStyles();
+  const { loading, error, data:metricResponseData } = useQuery(query);
+  
+  useEffect(() => {
+    if(metricResponseData){
+      const tmpMetricList = [];
+      metricResponseData.getMetrics.forEach((tmpQueryResult, index) => {
+        const tmpMetric = {
+            label: tmpQueryResult, value: tmpQueryResult
+        }
+        tmpMetricList.push(tmpMetric);
+      })
+      setMetricList(tmpMetricList)
+    }
+          
+  },[metricResponseData])
+  
+
     return (
         <Stack spacing={3} className = { classes.stackContainer }>
             <Autocomplete
                 multiple
                 id="tags-outlined"
-                options={metricsList}
+                options={metricList}
                 getOptionLabel={(option) => option?.label}
                 onChange = { props.onChange }
                 filterSelectedOptions
